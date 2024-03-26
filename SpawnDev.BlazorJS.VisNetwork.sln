@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.34707.107
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpawnDev.BlazorJS.VisNetwork", "SpawnDev.BlazorJS.VisNetwork\SpawnDev.BlazorJS.VisNetwork.csproj", "{B7D7FBD3-B2BA-4E35-8040-61204F9EFAB8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpawnDev.BlazorJS.VisNetwork.Demo", "SpawnDev.BlazorJS.VisNetwork.Demo\SpawnDev.BlazorJS.VisNetwork.Demo.csproj", "{4DE26F99-D162-41BC-BD8F-B62DE79FA2CD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B7D7FBD3-B2BA-4E35-8040-61204F9EFAB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7D7FBD3-B2BA-4E35-8040-61204F9EFAB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7D7FBD3-B2BA-4E35-8040-61204F9EFAB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7D7FBD3-B2BA-4E35-8040-61204F9EFAB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DE26F99-D162-41BC-BD8F-B62DE79FA2CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DE26F99-D162-41BC-BD8F-B62DE79FA2CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DE26F99-D162-41BC-BD8F-B62DE79FA2CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DE26F99-D162-41BC-BD8F-B62DE79FA2CD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {382E0C46-886F-455C-9E74-FABC05FA16EA}
+	EndGlobalSection
+EndGlobal
