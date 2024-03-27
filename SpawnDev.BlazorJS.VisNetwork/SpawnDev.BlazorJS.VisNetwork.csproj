@@ -14,6 +14,7 @@
 		<Description>VisNetwork in Blazor WebAssembly</Description>
 		<PackageProjectUrl>https://github.com/LostBeard/SpawnDev.BlazorJS.VisNetwork</PackageProjectUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageIcon>icon-128.png</PackageIcon>
 		<RepositoryUrl>https://github.com/LostBeard/SpawnDev.BlazorJS.VisNetwork.git</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
