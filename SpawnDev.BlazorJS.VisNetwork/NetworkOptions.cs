@@ -5,10 +5,10 @@ namespace SpawnDev.BlazorJS.VisNetwork
     public class NetworkData
     {
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public NodeDataSet? Nodes { get; set; }
+        public DataSet<VisNode>? Nodes { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public EdgeDataSet? Edges { get; set; }
+        public DataSet<VisEdge>? Edges { get; set; }
 
     }
 

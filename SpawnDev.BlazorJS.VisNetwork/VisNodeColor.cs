@@ -1,4 +1,6 @@
-﻿using System.Text.Json.Serialization;
+﻿using SpawnDev.BlazorJS.JSObjects;
+using System.Drawing;
+using System.Text.Json.Serialization;
 
 namespace SpawnDev.BlazorJS.VisNetwork
 {
@@ -6,10 +8,10 @@ namespace SpawnDev.BlazorJS.VisNetwork
     {
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Background { get; set; } = null;
+        public string? Background { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Border { get; set; } = null;
+        public string? Border { get; set; }
 
     }
 }

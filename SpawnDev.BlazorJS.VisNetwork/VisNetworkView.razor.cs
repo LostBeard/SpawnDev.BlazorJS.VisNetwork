@@ -54,9 +54,9 @@ namespace SpawnDev.BlazorJS.VisNetwork
 
         public NetworkData NetworkData { get; private set; }
 
-        public NodeDataSet Nodes { get; private set; }
+        public DataSet<VisNode>? Nodes => NetworkData?.Nodes;
 
-        public EdgeDataSet Edges { get; private set; }
+        public DataSet<VisEdge>? Edges => NetworkData?.Edges;
 
         public void Dispose()
         {
@@ -95,8 +95,8 @@ namespace SpawnDev.BlazorJS.VisNetwork
                 if (OnHidePopup.HasDelegate)
                     Network.OnHidePopup -= Network_OnHidePopup;
             }
-            Edges?.Dispose();
-            Nodes?.Dispose();
+            NetworkData?.Edges?.Dispose();
+            NetworkData?.Nodes?.Dispose();
             Network?.Dispose();
         }
 
@@ -104,8 +104,8 @@ namespace SpawnDev.BlazorJS.VisNetwork
 
         public void Clear()
         {
-            Nodes?.Clear();
-            Edges?.Clear();
+            NetworkData?.Nodes?.Clear();
+            NetworkData?.Edges?.Clear();
         }
 
         // https://visjs.org/
@@ -128,7 +128,7 @@ namespace SpawnDev.BlazorJS.VisNetwork
 
         void LoadDemoData()
         {
-            Nodes.Add(new List<VisNode>
+            NetworkData?.Nodes.Add(new List<VisNode>
             {
                 new VisNode{ Id = "1", Label = "Node 1" },
                 new VisNode{ Id = "2", Label = "Node 2" },
@@ -136,7 +136,7 @@ namespace SpawnDev.BlazorJS.VisNetwork
                 new VisNode{ Id = "4", Label = "Node 4" },
                 new VisNode{ Id = "5", Label = "Node 5" },
             });
-            Edges.Add(new List<VisEdge>
+            NetworkData?.Edges.Add(new List<VisEdge>
             {
                 new VisEdge{ From = "1", To = "3" },
                 new VisEdge{ From = "1", To = "2" },
@@ -253,12 +253,10 @@ namespace SpawnDev.BlazorJS.VisNetwork
         async Task InitAsync()
         {
             await JS.LoadScript("_content/SpawnDev.BlazorJS.VisNetwork/vis-network.min.js", "vis");
-            Nodes = new NodeDataSet();
-            Edges = new EdgeDataSet();
             if (UseDemoData) LoadDemoData();
             NetworkData = new NetworkData();
-            NetworkData.Nodes = Nodes;
-            NetworkData.Edges = Edges;
+            NetworkData.Nodes = new DataSet<VisNode>();
+            NetworkData.Edges = new DataSet<VisEdge>();
             //var options = new NetworkOptions();
             Options.AutoResize = true;
             Options.Edges = new NetworkEdgeOptions
