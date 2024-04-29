@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using SpawnDev.BlazorJS;
 using SpawnDev.BlazorJS.JSObjects;
+using SpawnDev.BlazorJS.Toolbox;
 
 namespace SpawnDev.BlazorJS.VisNetwork
 {
@@ -19,10 +20,7 @@ namespace SpawnDev.BlazorJS.VisNetwork
         public string Style { get; set; } = "width: 100%; height: 100%;";
 
         [Parameter]
-        public Func<Task>? UpdateData { get; set; }
-
-        [Parameter]
-        public bool UseDemoData { get; set; }
+        public EventCallback<VisNetworkView> UpdateData { get; set; }
 
         [Parameter] public EventCallback<NetworkEvent> OnClick { get; set; }
         [Parameter] public EventCallback<NetworkEvent> OnDoubleClick { get; set; }
@@ -113,37 +111,12 @@ namespace SpawnDev.BlazorJS.VisNetwork
         // https://visjs.github.io/vis-network/examples/network/data/dynamicData.html
         // https://visjs.github.io/vis-network/examples/network/nodeStyles/circularImages.html
 
-        protected override void OnAfterRender(bool firstRender)
-        {
-            Console.WriteLine("OnAfterRender");
-        }
-
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
                 await InitAsync();
             }
-        }
-
-        void LoadDemoData()
-        {
-            NetworkData?.Nodes.Add(new List<VisNode>
-            {
-                new VisNode{ Id = "1", Label = "Node 1" },
-                new VisNode{ Id = "2", Label = "Node 2" },
-                new VisNode{ Id = "3", Label = "Node 3" },
-                new VisNode{ Id = "4", Label = "Node 4" },
-                new VisNode{ Id = "5", Label = "Node 5" },
-            });
-            NetworkData?.Edges.Add(new List<VisEdge>
-            {
-                new VisEdge{ From = "1", To = "3" },
-                new VisEdge{ From = "1", To = "2" },
-                new VisEdge{ From = "2", To = "4" },
-                new VisEdge{ From = "2", To = "5" },
-                new VisEdge{ From = "3", To = "5" },
-            });
         }
 
         void Network_OnClick(NetworkEvent networkEvent)
@@ -252,8 +225,7 @@ namespace SpawnDev.BlazorJS.VisNetwork
 
         async Task InitAsync()
         {
-            await JS.LoadScript("_content/SpawnDev.BlazorJS.VisNetwork/vis-network.min.js", "vis");
-            if (UseDemoData) LoadDemoData();
+            await JS.LoadScript("_content/SpawnDev.BlazorJS.VisNetwork/vis-network.min.js", "vis"); ;
             NetworkData = new NetworkData();
             NetworkData.Nodes = new DataSet<VisNode>();
             NetworkData.Edges = new DataSet<VisEdge>();
@@ -270,13 +242,13 @@ namespace SpawnDev.BlazorJS.VisNetwork
                 Shadow = true,
             };
             Network = new Network(_container, NetworkData, Options);
-            if (OnClick.HasDelegate) 
+            if (OnClick.HasDelegate)
                 Network.OnClick += Network_OnClick;
-            if (OnDoubleClick.HasDelegate) 
+            if (OnDoubleClick.HasDelegate)
                 Network.OnDoubleClick += Network_OnDoubleClick;
-            if (OnContext.HasDelegate) 
+            if (OnContext.HasDelegate)
                 Network.OnContext += Network_OnContext;
-            if (OnDragging.HasDelegate) 
+            if (OnDragging.HasDelegate)
                 Network.OnDragging += Network_OnDragging;
             if (OnDragStart.HasDelegate)
                 Network.OnDragStart += Network_OnDragStart;
@@ -305,14 +277,34 @@ namespace SpawnDev.BlazorJS.VisNetwork
 #if DEBUG
             JS.Set("_network", Network);
 #endif
-            if (UpdateData != null) await UpdateData.Invoke();
+            await InvokeUpdateData();
+        }
+
+        bool updating = false;
+        async Task InvokeUpdateData()
+        {
+            if (updating) return;
+            updating = true;
+            try
+            {
+                await UpdateData.InvokeAsync(this);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"UpdateData failed: {ex.Message}");
+            }
+            finally
+            {
+                updating = false;
+            }
         }
 
         protected override bool ShouldRender()
         {
+            // after the initial render, we only need to update the data to redraw the canvas
             if (Network != null)
             {
-                if (UpdateData != null) _ = UpdateData();
+                _ = InvokeUpdateData();
             }
             return false;
         }
