@@ -12,15 +12,19 @@ namespace SpawnDev.BlazorJS.VisNetwork
     /// </summary>
     public partial class VisNetworkView : IDisposable
     {
-
-        [Inject]
-        BlazorJSRuntime JS { get; set; }
-
-        [Parameter]
-        public string Style { get; set; } = "width: 100%; height: 100%;";
-
-        [Parameter]
-        public EventCallback<VisNetworkView> UpdateData { get; set; }
+        [Inject] BlazorJSRuntime JS { get; set; }
+        /// <summary>
+        /// Style to be applied to the container
+        /// </summary>
+        [Parameter] public string Style { get; set; } = "width: 100%; height: 100%;";
+        /// <summary>
+        /// Called when after OnReady when rendered or re-rendered (for example: when StateHasChanged() is called on the parent component)
+        /// </summary>
+        [Parameter] public Func<VisNetworkView, Task>? UpdateData { get; set; }
+        /// <summary>
+        /// Called when the control is ready
+        /// </summary>
+        [Parameter] public EventCallback<VisNetworkView> OnReady { get; set; }
 
         [Parameter] public EventCallback<NetworkEvent> OnClick { get; set; }
         [Parameter] public EventCallback<NetworkEvent> OnDoubleClick { get; set; }
@@ -44,18 +48,30 @@ namespace SpawnDev.BlazorJS.VisNetwork
         [Parameter] public EventCallback<string> OnShowPopup { get; set; }
         [Parameter] public EventCallback OnHidePopup { get; set; }
 
-        public ElementReference _container { get; protected set; }
-
-        NetworkOptions Options { get; set; } = new NetworkOptions();
-
-        public Network? Network { get; private set; } = null;
-
+        ElementReference _container;
+        /// <summary>
+        /// NetworkOptions to be used when Network is created
+        /// </summary>
+        [Parameter] public NetworkOptions? Options { get; set; }
+        /// <summary>
+        /// Retuns the instance of Network
+        /// </summary>
+        public Network? Network { get; private set; } 
+        /// <summary>
+        /// Contains the network data
+        /// </summary>
         public NetworkData NetworkData { get; private set; }
-
+        /// <summary>
+        /// Accesses NetworkData.Nodes
+        /// </summary>
         public DataSet<VisNode>? Nodes => NetworkData?.Nodes;
-
+        /// <summary>
+        /// Accesses NetworkData.Edges
+        /// </summary>
         public DataSet<VisEdge>? Edges => NetworkData?.Edges;
-
+        /// <summary>
+        /// Releases resources
+        /// </summary>
         public void Dispose()
         {
             if (Network != null)
@@ -97,9 +113,13 @@ namespace SpawnDev.BlazorJS.VisNetwork
             NetworkData?.Nodes?.Dispose();
             Network?.Dispose();
         }
-
+        /// <summary>
+        /// Network.fit()
+        /// </summary>
         public void Fit() => Network?.Fit();
-
+        /// <summary>
+        /// Clear the network data
+        /// </summary>
         public void Clear()
         {
             NetworkData?.Nodes?.Clear();
@@ -117,6 +137,16 @@ namespace SpawnDev.BlazorJS.VisNetwork
             {
                 await InitAsync();
             }
+        }
+
+        protected override bool ShouldRender()
+        {
+            // after the initial render, we only need to update the data to redraw the canvas
+            if (Network != null)
+            {
+                _ = Update();
+            }
+            return false;
         }
 
         void Network_OnClick(NetworkEvent networkEvent)
@@ -229,18 +259,11 @@ namespace SpawnDev.BlazorJS.VisNetwork
             NetworkData = new NetworkData();
             NetworkData.Nodes = new DataSet<VisNode>();
             NetworkData.Edges = new DataSet<VisEdge>();
-            //var options = new NetworkOptions();
-            Options.AutoResize = true;
-            Options.Edges = new NetworkEdgeOptions
+            if (Options == null)
             {
-                Color = "#dd0000",
-                Shadow = true,
-            };
-            Options.Nodes = new NetworkNodeOptions
-            {
-                Color = new NodeColorOptions { Border = "#ff0000" },
-                Shadow = true,
-            };
+                Options= new NetworkOptions();
+                Options.AutoResize = true;
+            }
             Network = new Network(_container, NetworkData, Options);
             if (OnClick.HasDelegate)
                 Network.OnClick += Network_OnClick;
@@ -277,17 +300,30 @@ namespace SpawnDev.BlazorJS.VisNetwork
 #if DEBUG
             JS.Set("_network", Network);
 #endif
-            await InvokeUpdateData();
+            Ready = true;
+            await OnReady.InvokeAsync(this);
+            await Update();
         }
-
-        bool updating = false;
-        async Task InvokeUpdateData()
+        /// <summary>
+        /// Returns true when the component has been initialized and is ready
+        /// </summary>
+        public bool Ready { get; private set; } = false;
+        /// <summary>
+        /// Returns true when updating
+        /// </summary>
+        public bool Updating { get; private set; } = false;
+        /// <summary>
+        /// UpdateData will be called. 
+        /// </summary>
+        /// <returns></returns>
+        public async Task Update()
         {
-            if (updating) return;
-            updating = true;
+            if (UpdateData == null) return;
+            if (Updating) return;
+            Updating = true;
             try
             {
-                await UpdateData.InvokeAsync(this);
+                await UpdateData(this);
             }
             catch (Exception ex)
             {
@@ -295,18 +331,8 @@ namespace SpawnDev.BlazorJS.VisNetwork
             }
             finally
             {
-                updating = false;
+                Updating = false;
             }
-        }
-
-        protected override bool ShouldRender()
-        {
-            // after the initial render, we only need to update the data to redraw the canvas
-            if (Network != null)
-            {
-                _ = InvokeUpdateData();
-            }
-            return false;
         }
     }
 }
