@@ -8,16 +8,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.7" PrivateAssets="all" />
-	</ItemGroup>
-
-	<ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.19" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.19" PrivateAssets="all" />
 		<ProjectReference Include="..\SpawnDev.BlazorJS.VisNetwork\SpawnDev.BlazorJS.VisNetwork.csproj" />
 	</ItemGroup>
 
-	<ItemGroup Condition=" '$(Configuration)' == 'Release' ">
-		<PackageReference Include="SpawnDev.BlazorJS.VisNetwork" Version="1.5.0" />
-	</ItemGroup>
 
 </Project>
