@@ -50,10 +50,9 @@ namespace SpawnDev.BlazorJS.VisNetwork
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public bool? Hidden { get; set; }
         /// <summary>
-        /// The id of the node. The id is mandatory for nodes and they have to be unique. This should obviously be set per node, not globally.
+        /// The id of the node. The id is mandatory for nodes and they have to be unique.
         /// </summary>
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Id { get; set; }
+        public string Id { get; set; } = default!;
         /// <summary>
         /// The label is the piece of text shown in or under the node, depending on the shape.
         /// </summary>

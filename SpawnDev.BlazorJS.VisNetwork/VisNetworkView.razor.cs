@@ -1,7 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using SpawnDev.BlazorJS;
-using SpawnDev.BlazorJS.JSObjects;
-using SpawnDev.BlazorJS.Toolbox;
 
 namespace SpawnDev.BlazorJS.VisNetwork
 {
@@ -12,40 +9,83 @@ namespace SpawnDev.BlazorJS.VisNetwork
     /// </summary>
     public partial class VisNetworkView : IDisposable
     {
-        [Inject] BlazorJSRuntime JS { get; set; }
+        [Inject] BlazorJSRuntime JS { get; set; } = default!;
         /// <summary>
         /// Style to be applied to the container
         /// </summary>
         [Parameter] public string Style { get; set; } = "width: 100%; height: 100%;";
         /// <summary>
-        /// Called when after OnReady when rendered or re-rendered (for example: when StateHasChanged() is called on the parent component)
+        /// Called after OnReady and when (re-)rendered (for example: when StateHasChanged() is called on the parent component)<br/>
+        /// (Changing this to an EventCallback will cause this component to hang if disposed, and then recreated.)
         /// </summary>
         [Parameter] public Func<VisNetworkView, Task>? UpdateData { get; set; }
         /// <summary>
         /// Called when the control is ready
         /// </summary>
         [Parameter] public EventCallback<VisNetworkView> OnReady { get; set; }
-
+        /// <summary>
+        /// Called on click
+        /// </summary>
         [Parameter] public EventCallback<NetworkEvent> OnClick { get; set; }
+        /// <summary>
+        /// Called on double click
+        /// </summary>
         [Parameter] public EventCallback<NetworkEvent> OnDoubleClick { get; set; }
+        /// <summary>
+        /// Called on context click
+        /// </summary>
         [Parameter] public EventCallback<NetworkContextEvent> OnContext { get; set; }
-
+        /// <summary>
+        /// Called when dragging
+        /// </summary>
         [Parameter] public EventCallback<NetworkDragEvent> OnDragging { get; set; }
+        /// <summary>
+        /// Called when dragging starts
+        /// </summary>
         [Parameter] public EventCallback<NetworkDragEvent> OnDragStart { get; set; }
+        /// <summary>
+        /// Called when dragging ends
+        /// </summary>
         [Parameter] public EventCallback<NetworkDragEvent> OnDragEnd { get; set; }
-
+        /// <summary>
+        /// Called on node hover
+        /// </summary>
         [Parameter] public EventCallback<NetworkFocusEvent> OnHoverNode { get; set; }
+        /// <summary>
+        /// Called on node blur
+        /// </summary>
         [Parameter] public EventCallback<NetworkFocusEvent> OnBlurNode { get; set; }
-
+        /// <summary>
+        /// Called on select
+        /// </summary>
         [Parameter] public EventCallback<NetworkSelectEvent> OnSelect { get; set; }
+        /// <summary>
+        /// Called on node select
+        /// </summary>
         [Parameter] public EventCallback<NetworkSelectEvent> OnSelectNode { get; set; }
+        /// <summary>
+        /// Called on node deselect
+        /// </summary>
         [Parameter] public EventCallback<NetworkSelectEvent> OnDeselectNode { get; set; }
+        /// <summary>
+        /// Called on node edge select
+        /// </summary>
         [Parameter] public EventCallback<NetworkSelectEvent> OnSelectEdge { get; set; }
+        /// <summary>
+        /// Called on node edge deselect
+        /// </summary>
         [Parameter] public EventCallback<NetworkSelectEvent> OnDeselectEdge { get; set; }
-
+        /// <summary>
+        /// Called on zoom
+        /// </summary>
         [Parameter] public EventCallback<NetworkZoomEvent> OnZoom { get; set; }
-
+        /// <summary>
+        /// Called on popup show
+        /// </summary>
         [Parameter] public EventCallback<string> OnShowPopup { get; set; }
+        /// <summary>
+        /// Called on popup hide
+        /// </summary>
         [Parameter] public EventCallback OnHidePopup { get; set; }
 
         ElementReference _container;
@@ -54,13 +94,13 @@ namespace SpawnDev.BlazorJS.VisNetwork
         /// </summary>
         [Parameter] public NetworkOptions? Options { get; set; }
         /// <summary>
-        /// Retuns the instance of Network
+        /// Returns the instance of Network
         /// </summary>
-        public Network? Network { get; private set; } 
+        public Network? Network { get; private set; }
         /// <summary>
         /// Contains the network data
         /// </summary>
-        public NetworkData NetworkData { get; private set; }
+        public NetworkData? NetworkData { get; private set; }
         /// <summary>
         /// Accesses NetworkData.Nodes
         /// </summary>
@@ -69,50 +109,6 @@ namespace SpawnDev.BlazorJS.VisNetwork
         /// Accesses NetworkData.Edges
         /// </summary>
         public DataSet<VisEdge>? Edges => NetworkData?.Edges;
-        /// <summary>
-        /// Releases resources
-        /// </summary>
-        public void Dispose()
-        {
-            if (Network != null)
-            {
-                if (OnClick.HasDelegate)
-                    Network.OnClick -= Network_OnClick;
-                if (OnDoubleClick.HasDelegate)
-                    Network.OnDoubleClick -= Network_OnDoubleClick;
-                if (OnContext.HasDelegate)
-                    Network.OnContext -= Network_OnContext;
-                if (OnDragging.HasDelegate)
-                    Network.OnDragging -= Network_OnDragging;
-                if (OnDragStart.HasDelegate)
-                    Network.OnDragStart -= Network_OnDragStart;
-                if (OnDragEnd.HasDelegate)
-                    Network.OnDragEnd -= Network_OnDragEnd;
-                if (OnHoverNode.HasDelegate)
-                    Network.OnHoverNode -= Network_OnHoverNode;
-                if (OnBlurNode.HasDelegate)
-                    Network.OnBlurNode -= Network_OnBlurNode;
-                if (OnSelect.HasDelegate)
-                    Network.OnSelect -= Network_OnSelect;
-                if (OnSelectNode.HasDelegate)
-                    Network.OnSelectNode -= Network_OnSelectNode;
-                if (OnDeselectNode.HasDelegate)
-                    Network.OnDeselectNode -= Network_OnDeselectNode;
-                if (OnSelectEdge.HasDelegate)
-                    Network.OnSelectEdge -= Network_OnSelectEdge;
-                if (OnDeselectEdge.HasDelegate)
-                    Network.OnDeselectEdge -= Network_OnDeselectEdge;
-                if (OnZoom.HasDelegate)
-                    Network.OnZoom -= Network_OnZoom;
-                if (OnShowPopup.HasDelegate)
-                    Network.OnShowPopup -= Network_OnShowPopup;
-                if (OnHidePopup.HasDelegate)
-                    Network.OnHidePopup -= Network_OnHidePopup;
-            }
-            NetworkData?.Edges?.Dispose();
-            NetworkData?.Nodes?.Dispose();
-            Network?.Dispose();
-        }
         /// <summary>
         /// Network.fit()
         /// </summary>
@@ -131,6 +127,7 @@ namespace SpawnDev.BlazorJS.VisNetwork
         // https://visjs.github.io/vis-network/examples/network/data/dynamicData.html
         // https://visjs.github.io/vis-network/examples/network/nodeStyles/circularImages.html
 
+        /// <inheritdoc/>
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
@@ -139,6 +136,7 @@ namespace SpawnDev.BlazorJS.VisNetwork
             }
         }
 
+        /// <inheritdoc/>
         protected override bool ShouldRender()
         {
             // after the initial render, we only need to update the data to redraw the canvas
@@ -261,48 +259,67 @@ namespace SpawnDev.BlazorJS.VisNetwork
             NetworkData.Edges = new DataSet<VisEdge>();
             if (Options == null)
             {
-                Options= new NetworkOptions();
+                Options = new NetworkOptions();
                 Options.AutoResize = true;
             }
-            Network = new Network(_container, NetworkData, Options);
-            if (OnClick.HasDelegate)
+            try
+            {
+                Network = new Network(_container, NetworkData, Options);
                 Network.OnClick += Network_OnClick;
-            if (OnDoubleClick.HasDelegate)
                 Network.OnDoubleClick += Network_OnDoubleClick;
-            if (OnContext.HasDelegate)
                 Network.OnContext += Network_OnContext;
-            if (OnDragging.HasDelegate)
                 Network.OnDragging += Network_OnDragging;
-            if (OnDragStart.HasDelegate)
                 Network.OnDragStart += Network_OnDragStart;
-            if (OnDragEnd.HasDelegate)
                 Network.OnDragEnd += Network_OnDragEnd;
-            if (OnHoverNode.HasDelegate)
                 Network.OnHoverNode += Network_OnHoverNode;
-            if (OnBlurNode.HasDelegate)
                 Network.OnBlurNode += Network_OnBlurNode;
-            if (OnSelect.HasDelegate)
                 Network.OnSelect += Network_OnSelect;
-            if (OnSelectNode.HasDelegate)
                 Network.OnSelectNode += Network_OnSelectNode;
-            if (OnDeselectNode.HasDelegate)
                 Network.OnDeselectNode += Network_OnDeselectNode;
-            if (OnSelectEdge.HasDelegate)
                 Network.OnSelectEdge += Network_OnSelectEdge;
-            if (OnDeselectEdge.HasDelegate)
                 Network.OnDeselectEdge += Network_OnDeselectEdge;
-            if (OnZoom.HasDelegate)
                 Network.OnZoom += Network_OnZoom;
-            if (OnShowPopup.HasDelegate)
                 Network.OnShowPopup += Network_OnShowPopup;
-            if (OnHidePopup.HasDelegate)
                 Network.OnHidePopup += Network_OnHidePopup;
 #if DEBUG
-            JS.Set("_network", Network);
+                JS.Set("_network", Network);
 #endif
-            Ready = true;
-            await OnReady.InvokeAsync(this);
-            await Update();
+                Ready = true;
+                await OnReady.InvokeAsync(this);
+                await Update();
+            }
+            catch (Exception ex)
+            {
+                JS.Log($"InitAsync failed: {ex.ToString()}");
+            }
+        }
+        /// <summary>
+        /// Releases resources
+        /// </summary>
+        public void Dispose()
+        {
+            if (Network != null)
+            {
+                Network.OnClick -= Network_OnClick;
+                Network.OnDoubleClick -= Network_OnDoubleClick;
+                Network.OnContext -= Network_OnContext;
+                Network.OnDragging -= Network_OnDragging;
+                Network.OnDragStart -= Network_OnDragStart;
+                Network.OnDragEnd -= Network_OnDragEnd;
+                Network.OnHoverNode -= Network_OnHoverNode;
+                Network.OnBlurNode -= Network_OnBlurNode;
+                Network.OnSelect -= Network_OnSelect;
+                Network.OnSelectNode -= Network_OnSelectNode;
+                Network.OnDeselectNode -= Network_OnDeselectNode;
+                Network.OnSelectEdge -= Network_OnSelectEdge;
+                Network.OnDeselectEdge -= Network_OnDeselectEdge;
+                Network.OnZoom -= Network_OnZoom;
+                Network.OnShowPopup -= Network_OnShowPopup;
+                Network.OnHidePopup -= Network_OnHidePopup;
+            }
+            NetworkData?.Edges?.Dispose();
+            NetworkData?.Nodes?.Dispose();
+            Network?.Dispose();
         }
         /// <summary>
         /// Returns true when the component has been initialized and is ready
@@ -327,7 +344,7 @@ namespace SpawnDev.BlazorJS.VisNetwork
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"UpdateData failed: {ex.Message}");
+                Console.WriteLine($"UpdateData failed: {ex.ToString()}");
             }
             finally
             {
