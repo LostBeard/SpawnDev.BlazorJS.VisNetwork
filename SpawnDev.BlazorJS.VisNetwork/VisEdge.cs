@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Diagnostics.Metrics;
+using System.Text.Json.Serialization;
 
 namespace SpawnDev.BlazorJS.VisNetwork
 {
@@ -83,5 +84,17 @@ namespace SpawnDev.BlazorJS.VisNetwork
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public bool? Hidden { get; set; }
+        /// <summary>
+        /// When true, the edge is drawn as a dynamic quadratic bezier curve.
+        /// The drawing of these curves takes longer than that of straight
+        /// curves but it looks better.There is a difference between dynamic
+        /// smooth curves and static smooth curves.The dynamic smooth curves
+        /// have an invisible support node that takes part in the physics
+        /// simulation.If you have a lot of edges, you may want to consider
+        /// picking a different type of smooth curves than dynamic for better
+        /// performance.
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? Smooth { get; set; }
     }
 }
