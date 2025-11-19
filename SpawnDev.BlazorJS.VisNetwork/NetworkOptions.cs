@@ -39,7 +39,11 @@ namespace SpawnDev.BlazorJS.VisNetwork
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public NetworkEdgeOptions? Edges { get; set; }
-
+        /// <summary>
+        /// All options in this object are explained in the physics module.
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public PhysicsOptions? Physics { get; set; }
     }
 
     public class NetworkNodeOptions
