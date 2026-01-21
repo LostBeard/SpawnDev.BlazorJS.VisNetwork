@@ -13,5 +13,4 @@
 		<ProjectReference Include="..\SpawnDev.BlazorJS.VisNetwork\SpawnDev.BlazorJS.VisNetwork.csproj" />
 	</ItemGroup>
 
-
 </Project>
